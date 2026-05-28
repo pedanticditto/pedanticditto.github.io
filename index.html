@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StarDrop — K-Pop Card Battle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink:   #ff4fa3;
+      --purple: #9b59f7;
+      --gold:   #ffd166;
+      --dark:   #0a0612;
+      --dark2:  #120d20;
+      --card1:  linear-gradient(135deg, #ff4fa3, #9b59f7);
+      --card2:  linear-gradient(135deg, #43e97b, #38f9d7);
+      --card3:  linear-gradient(135deg, #ffd166, #f7971e);
+      --card4:  linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--dark);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* STARS BACKGROUND */
+    .stars {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(1px 1px at 10% 20%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 60%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 15%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 45%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 80%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 20% 85%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 65% 70%, #fff 0%, transparent 100%),
+        radial-gradient(2px 2px at 45% 35%, rgba(255,79,163,.8) 0%, transparent 100%),
+        radial-gradient(2px 2px at 80% 20%, rgba(155,89,247,.8) 0%, transparent 100%),
+        var(--dark);
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 3rem;
+      background: rgba(10,6,18,.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(155,89,247,.25);
+    }
+
+    .nav-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem; font-weight: 900;
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: rgba(255,255,255,.7); text-decoration: none;
+      font-size: .9rem; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--pink); }
+
+    .nav-cta {
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      border: none; color: #fff; padding: .6rem 1.4rem;
+      border-radius: 50px; font-weight: 700; font-size: .9rem;
+      cursor: pointer; transition: opacity .2s, transform .2s;
+      letter-spacing: 1px;
+    }
+    .nav-cta:hover { opacity: .85; transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 8rem 2rem 4rem;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(155,89,247,.3) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -55%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%,-55%) scale(1); opacity: .5; }
+      50%       { transform: translate(-50%,-55%) scale(1.08); opacity: 1; }
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,79,163,.15);
+      border: 1px solid rgba(255,79,163,.4);
+      color: var(--pink); padding: .35rem 1rem;
+      border-radius: 50px; font-size: .8rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.5rem;
+      animation: fadeUp .6s ease both;
+    }
+
+    .hero h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.8rem, 7vw, 6rem);
+      font-weight: 900; line-height: 1.05; letter-spacing: -1px;
+      animation: fadeUp .7s .1s ease both;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(90deg, var(--pink), var(--purple), var(--gold));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      margin-top: 1.2rem;
+      font-size: 1.1rem; color: rgba(255,255,255,.65);
+      max-width: 540px; line-height: 1.7;
+      animation: fadeUp .7s .2s ease both;
+    }
+
+    .hero-btns {
+      margin-top: 2.5rem;
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp .7s .3s ease both;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      border: none; color: #fff; padding: .9rem 2.2rem;
+      border-radius: 50px; font-weight: 700; font-size: 1rem;
+      cursor: pointer; transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 0 30px rgba(155,89,247,.4);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(155,89,247,.6); }
+
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid rgba(255,255,255,.25);
+      color: #fff; padding: .9rem 2.2rem;
+      border-radius: 50px; font-weight: 700; font-size: 1rem;
+      cursor: pointer; transition: border-color .2s, transform .2s;
+    }
+    .btn-secondary:hover { border-color: var(--purple); transform: translateY(-3px); }
+
+    /* FLOATING CARDS IN HERO */
+    .hero-cards {
+      position: relative; margin-top: 4rem; width: 100%;
+      max-width: 900px; height: 320px;
+      animation: fadeUp .8s .4s ease both;
+    }
+
+    .hcard {
+      position: absolute; width: 160px; height: 240px;
+      border-radius: 16px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      padding: 1rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      cursor: pointer; transition: transform .3s; overflow: hidden;
+    }
+    .hcard:hover { transform: translateY(-12px) rotate(0deg) !important; }
+
+    .hcard-img {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+    }
+
+    .hcard-info {
+      position: relative; z-index: 2; text-align: center;
+      background: rgba(0,0,0,.55); border-radius: 8px;
+      padding: .4rem .8rem; width: 100%;
+    }
+    .hcard-name  { font-weight: 700; font-size: .85rem; }
+    .hcard-group { font-size: .7rem; color: rgba(255,255,255,.6); }
+
+    .hcard-stars   { position: absolute; top: .6rem; left: .6rem; font-size: .7rem; color: var(--gold); }
+    .hcard-rarity  {
+      position: absolute; top: .6rem; right: .6rem;
+      font-size: .6rem; font-weight: 700; padding: .15rem .4rem;
+      border-radius: 4px; letter-spacing: 1px;
+    }
+
+    .hcard:nth-child(1) { left: 50%; transform: translateX(-50%) rotate(-8deg); z-index: 1; background: var(--card1); }
+    .hcard:nth-child(2) { left: 50%; transform: translateX(calc(-50% + 180px)) rotate(4deg); z-index: 2; background: var(--card2); }
+    .hcard:nth-child(3) { left: 50%; transform: translateX(calc(-50% - 180px)) rotate(-4deg); z-index: 2; background: var(--card3); }
+    .hcard:nth-child(4) { left: 50%; transform: translateX(calc(-50% + 340px)) rotate(10deg); z-index: 1; background: var(--card4); }
+    .hcard:nth-child(5) { left: 50%; transform: translateX(calc(-50% - 340px)) rotate(-12deg); z-index: 1; background: var(--card1); filter: hue-rotate(60deg); }
+
+    /* STATS BAR */
+    .stats {
+      position: relative; z-index: 1;
+      display: flex; justify-content: center; flex-wrap: wrap;
+      background: rgba(255,255,255,.04);
+      border-top: 1px solid rgba(255,255,255,.08);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .stat { padding: 2rem 3rem; text-align: center; border-right: 1px solid rgba(255,255,255,.08); }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900;
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-label { font-size: .8rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 2px; margin-top: .3rem; }
+
+    /* SECTIONS */
+    section { position: relative; z-index: 1; }
+
+    .section-label {
+      font-size: .75rem; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--pink); margin-bottom: .8rem;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2;
+    }
+
+    /* FEATURES */
+    .features { padding: 7rem 2rem; max-width: 1200px; margin: 0 auto; }
+    .features-header { text-align: center; margin-bottom: 4rem; }
+    .features-header p { margin-top: 1rem; color: rgba(255,255,255,.55); max-width: 480px; margin-inline: auto; line-height: 1.7; }
+
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+
+    .feature-card {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px; padding: 2.5rem;
+      transition: border-color .3s, transform .3s, background .3s; cursor: default;
+    }
+    .feature-card:hover {
+      border-color: rgba(155,89,247,.5); transform: translateY(-4px);
+      background: rgba(155,89,247,.06);
+    }
+
+    .feature-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; margin-bottom: 1.5rem;
+    }
+    .fi-battle  { background: rgba(255,79,163,.2); }
+    .fi-collect { background: rgba(255,209,102,.2); }
+    .fi-trade   { background: rgba(155,89,247,.2); }
+
+    .feature-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: .7rem; }
+    .feature-card p  { color: rgba(255,255,255,.55); line-height: 1.7; font-size: .95rem; }
+
+    .feature-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.2rem; }
+    .tag {
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+      padding: .25rem .7rem; border-radius: 50px; font-size: .75rem; color: rgba(255,255,255,.6);
+    }
+
+    /* CARD SHOWCASE */
+    .showcase {
+      padding: 7rem 2rem;
+      background: rgba(255,255,255,.02);
+      border-top: 1px solid rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .showcase-inner { max-width: 1200px; margin: 0 auto; }
+    .showcase-header { text-align: center; margin-bottom: 4rem; }
+    .showcase-header p { margin-top: 1rem; color: rgba(255,255,255,.55); max-width: 480px; margin-inline: auto; line-height: 1.7; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+
+    .card-item {
+      border-radius: 16px; overflow: hidden; position: relative;
+      aspect-ratio: 2/3; cursor: pointer;
+      transition: transform .3s, box-shadow .3s;
+      box-shadow: 0 8px 30px rgba(0,0,0,.4);
+    }
+    .card-item:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 50px rgba(0,0,0,.6); }
+
+    .card-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 5rem; }
+    .card-shine {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.2) 0%, transparent 50%, rgba(255,255,255,.05) 100%);
+    }
+    .card-footer {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1rem .8rem .8rem;
+      background: linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 100%);
+    }
+    .card-rarity-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: .4rem; }
+    .card-name  { font-weight: 700; font-size: .9rem; }
+    .card-group { font-size: .75rem; color: rgba(255,255,255,.6); }
+    .card-power {
+      position: absolute; top: .6rem; right: .6rem;
+      background: rgba(0,0,0,.6); padding: .2rem .5rem;
+      border-radius: 6px; font-size: .7rem; font-weight: 700; color: var(--gold);
+    }
+    .card-stars-top { position: absolute; top: .6rem; left: .6rem; font-size: .75rem; }
+
+    /* BATTLE */
+    .battle-section {
+      padding: 7rem 2rem; max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+    }
+    .battle-text .section-title { margin-bottom: 1rem; }
+    .battle-text p { color: rgba(255,255,255,.55); line-height: 1.8; margin-bottom: 1.5rem; }
+
+    .battle-arena {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,79,163,.2);
+      border-radius: 24px; padding: 2rem;
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    }
+
+    .arena-title {
+      font-family: 'Orbitron', sans-serif; font-size: .8rem;
+      letter-spacing: 3px; color: var(--pink); text-transform: uppercase;
+    }
+
+    .battle-cards { display: flex; align-items: center; gap: 1.5rem; width: 100%; }
+
+    .battle-card {
+      flex: 1; border-radius: 14px; padding: 1.2rem;
+      display: flex; flex-direction: column; align-items: center; gap: .6rem;
+    }
+    .bc-left  { background: linear-gradient(135deg,rgba(255,79,163,.25),rgba(155,89,247,.25)); border: 1px solid rgba(255,79,163,.3); }
+    .bc-right { background: linear-gradient(135deg,rgba(67,233,123,.25),rgba(56,249,215,.25)); border: 1px solid rgba(67,233,123,.3); }
+
+    .bc-avatar { font-size: 3.5rem; }
+    .bc-name   { font-weight: 700; font-size: .9rem; }
+    .bc-hp     { width: 100%; }
+    .hp-bar    { height: 8px; border-radius: 4px; background: rgba(255,255,255,.1); overflow: hidden; margin-top: .3rem; }
+    .hp-fill   { height: 100%; border-radius: 4px; }
+    .hp-left   { background: linear-gradient(90deg, var(--pink), var(--purple)); width: 65%; }
+    .hp-right  { background: linear-gradient(90deg, #43e97b, #38f9d7); width: 82%; }
+    .hp-label  { font-size: .7rem; color: rgba(255,255,255,.5); margin-bottom: .2rem; }
+
+    .vs-badge {
+      font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--pink), var(--gold));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .skill-row { display: flex; gap: .5rem; width: 100%; justify-content: center; flex-wrap: wrap; }
+    .skill-btn {
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      color: #fff; padding: .4rem .9rem; border-radius: 8px;
+      font-size: .75rem; font-weight: 600; cursor: pointer; transition: background .2s, transform .2s;
+    }
+    .skill-btn:hover { background: rgba(255,79,163,.2); transform: scale(1.05); }
+    .skill-btn.hot   { background: rgba(255,79,163,.25); border-color: var(--pink); }
+
+    /* CTA */
+    .cta {
+      padding: 8rem 2rem; text-align: center;
+      background: linear-gradient(180deg, var(--dark) 0%, rgba(155,89,247,.08) 50%, var(--dark) 100%);
+      position: relative; overflow: hidden;
+    }
+    .cta-glow {
+      position: absolute; width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(155,89,247,.2) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;
+    }
+    .cta h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; position: relative;
+    }
+    .cta h2 span {
+      background: linear-gradient(90deg, var(--pink), var(--gold));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .cta p { color: rgba(255,255,255,.55); margin: 1.2rem auto 2.5rem; max-width: 500px; line-height: 1.7; position: relative; }
+    .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; position: relative; }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), #f7971e);
+      border: none; color: #1a0a00; padding: .95rem 2.4rem;
+      border-radius: 50px; font-weight: 800; font-size: 1rem;
+      cursor: pointer; transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 0 30px rgba(255,209,102,.3);
+    }
+    .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(255,209,102,.5); }
+
+    /* MARQUEE */
+    .marquee-wrap {
+      overflow: hidden; padding: 1.5rem 0;
+      background: rgba(255,79,163,.06);
+      border-top: 1px solid rgba(255,79,163,.15);
+      border-bottom: 1px solid rgba(255,79,163,.15);
+      position: relative; z-index: 1;
+    }
+    .marquee { display: flex; gap: 3rem; animation: marquee 24s linear infinite; white-space: nowrap; }
+    .marquee span { font-size: .85rem; color: rgba(255,255,255,.4); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+    .marquee span.highlight { color: var(--pink); }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* FOOTER */
+    footer {
+      position: relative; z-index: 1; background: var(--dark2);
+      border-top: 1px solid rgba(255,255,255,.06); padding: 4rem 2rem 2rem;
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem;
+    }
+    .footer-brand .nav-logo { display: block; margin-bottom: 1rem; }
+    .footer-brand p { color: rgba(255,255,255,.4); font-size: .9rem; line-height: 1.7; max-width: 260px; }
+    .footer-col h4 { font-size: .85rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1.2rem; color: rgba(255,255,255,.7); }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .7rem; }
+    .footer-col a { color: rgba(255,255,255,.4); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .footer-col a:hover { color: var(--pink); }
+
+    .footer-bottom {
+      max-width: 1200px; margin: 3rem auto 0;
+      padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.06);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-bottom p { color: rgba(255,255,255,.3); font-size: .8rem; }
+    .footer-social { display: flex; gap: 1rem; }
+    .social-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer; transition: background .2s; text-decoration: none;
+    }
+    .social-btn:hover { background: rgba(255,79,163,.2); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .battle-section { grid-template-columns: 1fr; gap: 2.5rem; }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    }
+    @media (max-width: 600px) {
+      .stat { padding: 1.5rem; }
+      .hero-cards { display: none; }
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">StarDrop</div>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#cards">Cards</a></li>
+      <li><a href="#battle">Battle</a></li>
+      <li><a href="#trade">Trade</a></li>
+    </ul>
+    <button class="nav-cta">Play Free</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-badge">Season 3 — New Idol Pack Dropping Soon</div>
+    <h1>Collect. Battle.<br /><span>Rule the Stage.</span></h1>
+    <p class="hero-sub">
+      Build your ultimate K-pop card deck, challenge other fans in real-time battles, and trade ultra-rare idol cards in the world's first K-pop trading card universe.
+    </p>
+    <div class="hero-btns">
+      <button class="btn-primary">Start Your Collection</button>
+      <button class="btn-secondary">Watch Trailer</button>
+    </div>
+
+    <div class="hero-cards">
+      <div class="hcard">
+        <div class="hcard-stars">★★★★★</div>
+        <div class="hcard-rarity" style="background:rgba(255,209,102,.25);color:var(--gold);">LEGEND</div>
+        <div class="hcard-img">👑</div>
+        <div class="hcard-info"><div class="hcard-name">Jisoo</div><div class="hcard-group">BLACKPINK</div></div>
+      </div>
+      <div class="hcard">
+        <div class="hcard-stars">★★★★</div>
+        <div class="hcard-rarity" style="background:rgba(155,89,247,.25);color:#b98fff;">EPIC</div>
+        <div class="hcard-img">🌊</div>
+        <div class="hcard-info"><div class="hcard-name">RM</div><div class="hcard-group">BTS</div></div>
+      </div>
+      <div class="hcard">
+        <div class="hcard-stars">★★★★★</div>
+        <div class="hcard-rarity" style="background:rgba(255,209,102,.25);color:var(--gold);">LEGEND</div>
+        <div class="hcard-img">🔥</div>
+        <div class="hcard-info"><div class="hcard-name">Karina</div><div class="hcard-group">aespa</div></div>
+      </div>
+      <div class="hcard">
+        <div class="hcard-stars">★★★</div>
+        <div class="hcard-rarity" style="background:rgba(79,195,247,.2);color:#4fc3f7;">RARE</div>
+        <div class="hcard-img">⚡</div>
+        <div class="hcard-info"><div class="hcard-name">Felix</div><div class="hcard-group">Stray Kids</div></div>
+      </div>
+      <div class="hcard">
+        <div class="hcard-stars">★★★★</div>
+        <div class="hcard-rarity" style="background:rgba(155,89,247,.25);color:#b98fff;">EPIC</div>
+        <div class="hcard-img">🌸</div>
+        <div class="hcard-info"><div class="hcard-name">Winter</div><div class="hcard-group">aespa</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="stat-num">2.4M+</div><div class="stat-label">Active Collectors</div></div>
+    <div class="stat"><div class="stat-num">18K+</div><div class="stat-label">Unique Cards</div></div>
+    <div class="stat"><div class="stat-num">850K</div><div class="stat-label">Battles Today</div></div>
+    <div class="stat"><div class="stat-num">240+</div><div class="stat-label">Idol Artists</div></div>
+  </div>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee">
+      <span>BTS</span><span class="highlight">✦</span>
+      <span>BLACKPINK</span><span class="highlight">✦</span>
+      <span>TWICE</span><span class="highlight">✦</span>
+      <span>aespa</span><span class="highlight">✦</span>
+      <span>Stray Kids</span><span class="highlight">✦</span>
+      <span>EXO</span><span class="highlight">✦</span>
+      <span>ITZY</span><span class="highlight">✦</span>
+      <span>NewJeans</span><span class="highlight">✦</span>
+      <span>SEVENTEEN</span><span class="highlight">✦</span>
+      <span>IVE</span><span class="highlight">✦</span>
+      <span>Red Velvet</span><span class="highlight">✦</span>
+      <span>NCT 127</span><span class="highlight">✦</span>
+      <span>BTS</span><span class="highlight">✦</span>
+      <span>BLACKPINK</span><span class="highlight">✦</span>
+      <span>TWICE</span><span class="highlight">✦</span>
+      <span>aespa</span><span class="highlight">✦</span>
+      <span>Stray Kids</span><span class="highlight">✦</span>
+      <span>EXO</span><span class="highlight">✦</span>
+      <span>ITZY</span><span class="highlight">✦</span>
+      <span>NewJeans</span><span class="highlight">✦</span>
+      <span>SEVENTEEN</span><span class="highlight">✦</span>
+      <span>IVE</span><span class="highlight">✦</span>
+      <span>Red Velvet</span><span class="highlight">✦</span>
+      <span>NCT 127</span><span class="highlight">✦</span>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="features">
+      <div class="features-header reveal">
+        <div class="section-label">Everything You Need</div>
+        <h2 class="section-title">Collect. Battle. Trade.<br />Your Stage. Your Rules.</h2>
+        <p>Three ways to play. Infinite ways to win. Build the ultimate K-pop empire.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-battle">⚔️</div>
+          <h3>Real-Time Battles</h3>
+          <p>Deploy your idol cards in 3v3 strategic battles. Each card has unique skills, elemental affinities, and ultimate moves. Rise through the global leaderboard.</p>
+          <div class="feature-tags">
+            <span class="tag">Turn-Based</span><span class="tag">PvP</span>
+            <span class="tag">Ranked</span><span class="tag">Guild Wars</span>
+          </div>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-collect">✨</div>
+          <h3>Gacha & Collection</h3>
+          <p>Open packs, complete idol sets, and unlock limited-edition cards from world tours, comebacks, and special events. Every pull is a surprise.</p>
+          <div class="feature-tags">
+            <span class="tag">Pity System</span><span class="tag">Set Bonuses</span>
+            <span class="tag">Event Cards</span><span class="tag">Albums</span>
+          </div>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-trade">🔄</div>
+          <h3>Live Trading Market</h3>
+          <p>List, bid, and trade cards on the global marketplace. Set your price, auction rare cards, or swap directly with friends. Real economy, real value.</p>
+          <div class="feature-tags">
+            <span class="tag">Auction House</span><span class="tag">Direct Trade</span>
+            <span class="tag">Price History</span><span class="tag">Wishlist</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARD SHOWCASE -->
+  <section id="cards">
+    <div class="showcase">
+      <div class="showcase-inner">
+        <div class="showcase-header reveal">
+          <div class="section-label">Card Collection</div>
+          <h2 class="section-title">Featured Cards This Season</h2>
+          <p>From rookie commons to ultra-rare Legendary Specials — every idol, every era, every vibe.</p>
+        </div>
+        <div class="cards-grid">
+
+          <div class="card-item reveal" style="background:linear-gradient(135deg,#ff4fa3,#9b59f7)">
+            <div class="card-bg">👑</div><div class="card-shine"></div>
+            <div class="card-stars-top" style="color:var(--gold)">★★★★★</div>
+            <div class="card-power">PWR 9800</div>
+            <div class="card-footer">
+              <div style="display:flex;align-items:center"><span class="card-rarity-dot" style="background:var(--gold)"></span><span style="font-size:.65rem;color:var(--gold);font-weight:700">LEGENDARY</span></div>
+              <div class="card-name">Jisoo — Flower</div><div class="card-group">BLACKPINK · 2023</div>
+            </div>
+          </div>
+
+          <div class="card-item reveal" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">
+            <div class="card-bg">🌌</div><div class="card-shine"></div>
+            <div class="card-stars-top" style="color:#b98fff">★★★★</div>
+            <div class="card-power">PWR 7600</div>
+            <div class="card-footer">
+              <div style="display:flex;align-items:center"><span class="card-rarity-dot" style="background:#9b59f7"></span><span style="font-size:.65rem;color:#b98fff;font-weight:700">EPIC</span></div>
+              <div class="card-name">V — Slow Dancing</div><div class="card-group">BTS · Solo</div>
+            </div>
+          </div>
+
+          <div class="card-item reveal" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">
+            <div class="card-bg">🌊</div><div class="card-shine"></div>
+            <div class="card-stars-top" style="color:var(--gold)">★★★★★</div>
+            <div class="card-power">PWR 9200</div>
+            <div class="card-footer">
+              <div style="display:flex;align-items:center"><span class="card-rarity-dot" style="background:var(--gold)"></span><span style="font-size:.65rem;color:var(--gold);font-weight:700">LEGENDARY</span></div>
+              <div class="card-name">Karina — Supernova</div><div class="card-group">aespa · 2024</div>
+            </div>
+          </div>
+
+          <div class="card-item reveal" style="background:linear-gradient(135deg,#f7971e,#ffd166)">
+            <div class="card-bg">⚡</div><div class="card-shine"></div>
+            <div class="card-stars-top" style="color:#fff">★★★</div>
+            <div class="card-power">PWR 5400</div>
+            <div class="card-footer">
+              <div style="display:flex;align-items:center"><span class="card-rarity-dot" style="background:#4fc3f7"></span><span style="font-size:.65rem;color:#4fc3f7;font-weight:700">RARE</span></div>
+              <div class="card-name">Felix — Miroh</div><div class="card-group">Stray Kids</div>
+            </div>
+          </div>
+
+          <div class="card-item reveal" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+            <div class="card-bg">🌸</div><div class="card-shine"></div>
+            <div class="card-stars-top" style="color:#b98fff">★★★★</div>
+            <div class="card-power">PWR 8100</div>
+            <div class="card-footer">
+              <div style="display:flex;align-items:center"><span class="card-rarity-dot" style="background:#9b59f7"></span><span style="font-size:.65rem;color:#b98fff;font-weight:700">EPIC</span></div>
+              <div class="card-name">Winter — Black Mamba</div><div class="card-group">aespa · 2020</div>
+            </div>
+          </div>
+
+          <div class="card-item reveal" style="background:linear-gradient(135deg,#f953c6,#b91d73)">
+            <div class="card-bg">💫</div><div class="card-shine"></div>
+            <div class="card-stars-top" style="color:var(--gold)">★★★★★</div>
+            <div class="card-power">PWR 9500</div>
+            <div class="card-footer">
+              <div style="display:flex;align-items:center"><span class="card-rarity-dot" style="background:var(--gold)"></span><span style="font-size:.65rem;color:var(--gold);font-weight:700">LEGENDARY</span></div>
+              <div class="card-name">Jennie — Solo</div><div class="card-group">BLACKPINK · 2018</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BATTLE PREVIEW -->
+  <section id="battle">
+    <div class="battle-section">
+      <div class="battle-text reveal">
+        <div class="section-label">Battle System</div>
+        <h2 class="section-title">Your Idols.<br />Their Power.</h2>
+        <p>Every idol card brings a unique skill set to the arena. Combine cards strategically — mix vocals, dancers, and rappers for devastating combo attacks. Counter your opponent's lineup to dominate the stage.</p>
+        <p>Climb from rookie to world-class manager. Seasonal ranked tournaments award ultra-rare cards and exclusive trophies.</p>
+        <button class="btn-primary" style="margin-top:.5rem">Enter Battle Arena</button>
+      </div>
+
+      <div class="battle-arena reveal">
+        <div class="arena-title">Live Battle Preview</div>
+        <div class="battle-cards">
+          <div class="battle-card bc-left">
+            <div class="bc-avatar">👑</div>
+            <div class="bc-name">Jisoo</div>
+            <div class="bc-hp">
+              <div class="hp-label">HP — 650 / 1000</div>
+              <div class="hp-bar"><div class="hp-fill hp-left"></div></div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="battle-card bc-right">
+            <div class="bc-avatar">🌊</div>
+            <div class="bc-name">Karina</div>
+            <div class="bc-hp">
+              <div class="hp-label">HP — 820 / 1000</div>
+              <div class="hp-bar"><div class="hp-fill hp-right"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="skill-row">
+          <button class="skill-btn hot">✨ Stage Presence</button>
+          <button class="skill-btn">🎤 High Note</button>
+          <button class="skill-btn">💫 Fancam Attack</button>
+          <button class="skill-btn">🔥 Ultimate Stage</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="trade">
+    <div class="cta-glow"></div>
+    <h2>Ready to Drop Your<br /><span>First Pack?</span></h2>
+    <p>Join 2.4 million collectors worldwide. Your ultimate bias card is one pull away — and it's free to start.</p>
+    <div class="cta-btns">
+      <button class="btn-gold">Open Free Pack Now</button>
+      <button class="btn-secondary">Explore Marketplace</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="nav-logo">StarDrop</span>
+        <p>The ultimate K-pop trading card game. Collect idols, battle rivals, and own the stage.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Game</h4>
+        <ul>
+          <li><a href="#">Card Database</a></li>
+          <li><a href="#">Battle Leaderboard</a></li>
+          <li><a href="#">Marketplace</a></li>
+          <li><a href="#">Season Pass</a></li>
+          <li><a href="#">Events</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="#">Discord</a></li>
+          <li><a href="#">Reddit</a></li>
+          <li><a href="#">Twitter / X</a></li>
+          <li><a href="#">Fan Art</a></li>
+          <li><a href="#">Guilds</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Trade Safety</a></li>
+          <li><a href="#">Report Bug</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 StarDrop Inc. — Not affiliated with any K-pop labels or artists.</p>
+      <div class="footer-social">
+        <a class="social-btn" href="#" title="Twitter">𝕏</a>
+        <a class="social-btn" href="#" title="Discord">💬</a>
+        <a class="social-btn" href="#" title="Instagram">📸</a>
+        <a class="social-btn" href="#" title="YouTube">▶</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => io.observe(el));
+
+    document.querySelectorAll('.card-item').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width  - .5;
+        const y = (e.clientY - r.top)  / r.height - .5;
+        card.style.transform = `translateY(-8px) scale(1.02) rotateY(${x * 14}deg) rotateX(${-y * 14}deg)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+    });
+
+    const sparkleStyle = document.createElement('style');
+    sparkleStyle.textContent = `@keyframes sparkleUp { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(-60px) scale(1.8); } }`;
+    document.head.appendChild(sparkleStyle);
+
+    document.querySelectorAll('.btn-primary, .btn-gold').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        const s = document.createElement('span');
+        s.textContent = '✨';
+        s.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;font-size:1.5rem;pointer-events:none;z-index:9999;animation:sparkleUp .6s ease forwards;`;
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 700);
+      });
+    });
+  </script>
+</body>
+</html>
