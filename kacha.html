@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kacha — The Ultimate K-pop Gacha Experience</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --pink:    #ff2d78;
+      --purple:  #9b30ff;
+      --cyan:    #00e5ff;
+      --gold:    #ffd700;
+      --dark:    #07060f;
+      --dark2:   #0e0c1e;
+      --dark3:   #16132e;
+      --text:    #e8e0ff;
+      --muted:   #9b93c8;
+      --radius:  14px;
+      --glow-pink:   0 0 24px rgba(255,45,120,.55);
+      --glow-purple: 0 0 24px rgba(155,48,255,.55);
+      --glow-cyan:   0 0 24px rgba(0,229,255,.45);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── Utility ──────────────────────────────────────────────────── */
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+    .section    { padding: 96px 0; }
+    .section--alt { background: var(--dark2); }
+    .label {
+      display: inline-block;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtext { color: var(--muted); font-size: 1.05rem; max-width: 600px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: #fff;
+      box-shadow: var(--glow-pink);
+    }
+    .btn-primary:hover { box-shadow: 0 0 40px rgba(255,45,120,.7); }
+    .btn-outline {
+      background: transparent;
+      color: var(--cyan);
+      border: 2px solid var(--cyan);
+      box-shadow: var(--glow-cyan);
+    }
+    .btn-outline:hover { background: rgba(0,229,255,.08); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
+    @media(max-width:900px){
+      .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; }
+    }
+    @media(max-width:640px){
+      .section { padding: 64px 0; }
+    }
+
+    /* ── Particle canvas ──────────────────────────────────────────── */
+    #particles { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.35; }
+
+    /* ── Nav ──────────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 18px 0;
+      background: rgba(7,6,15,.82);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(155,48,255,.18);
+    }
+    .nav-inner {
+      max-width: 1140px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.6rem; font-weight: 900; letter-spacing: -.02em;
+      background: linear-gradient(135deg, var(--pink), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      font-size: .92rem; font-weight: 600; color: var(--muted);
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-cta { display: flex; gap: 12px; }
+    @media(max-width:768px){
+      .nav-links { display:none; }
+    }
+
+    /* ── Hero ─────────────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 140px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(155,48,255,.22) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 70% at 80% 70%, rgba(255,45,120,.18) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 10%, rgba(0,229,255,.12) 0%, transparent 50%);
+      z-index: 1;
+    }
+    .hero-content { position: relative; z-index: 2; max-width: 780px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(155,48,255,.18);
+      border: 1px solid rgba(155,48,255,.4);
+      border-radius: 50px;
+      padding: 6px 18px;
+      font-size: .82rem; font-weight: 700; letter-spacing: .1em;
+      color: var(--purple);
+      margin-bottom: 28px;
+      text-transform: uppercase;
+    }
+    .hero-badge .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--purple);
+      animation: pulse-dot 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:.4; transform:scale(.6); }
+    }
+    #hero h1 {
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      margin-bottom: 24px;
+    }
+    .hero-sub {
+      font-size: 1.2rem; color: var(--muted);
+      max-width: 560px; margin: 0 auto 40px;
+    }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .hero-stats {
+      display: flex; gap: 48px; justify-content: center;
+      margin-top: 64px; flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 2rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--pink), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-label { font-size: .82rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+
+    /* ── Floating cards decoration ────────────────────────────────── */
+    .float-cards {
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .float-card {
+      position: absolute;
+      width: 80px; height: 115px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(135deg, rgba(155,48,255,.25), rgba(255,45,120,.15));
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+    .fc1 { top: 15%; left: 6%; transform: rotate(-12deg); animation: float1 6s ease-in-out infinite; }
+    .fc2 { top: 25%; right: 7%; transform: rotate(8deg); animation: float2 7s ease-in-out infinite; }
+    .fc3 { bottom: 20%; left: 10%; transform: rotate(5deg); animation: float3 5.5s ease-in-out infinite; }
+    .fc4 { bottom: 15%; right: 5%; transform: rotate(-7deg); animation: float1 8s ease-in-out infinite .5s; }
+    @keyframes float1 { 0%,100%{transform:rotate(-12deg) translateY(0)}   50%{transform:rotate(-12deg) translateY(-18px)} }
+    @keyframes float2 { 0%,100%{transform:rotate(8deg) translateY(0)}     50%{transform:rotate(8deg) translateY(-14px)} }
+    @keyframes float3 { 0%,100%{transform:rotate(5deg) translateY(0)}     50%{transform:rotate(5deg) translateY(-20px)} }
+
+    /* ── Marquee strip ────────────────────────────────────────────── */
+    .marquee-wrap {
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      padding: 14px 0;
+      white-space: nowrap;
+    }
+    .marquee-track {
+      display: inline-block;
+      animation: marquee 22s linear infinite;
+    }
+    .marquee-track span {
+      font-size: .9rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.85);
+      margin-right: 48px;
+    }
+    .marquee-track span::before { content: "★  "; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── Philosophy cards ─────────────────────────────────────────── */
+    .phil-card {
+      background: var(--dark3);
+      border: 1px solid rgba(155,48,255,.2);
+      border-radius: var(--radius);
+      padding: 32px;
+      transition: border-color .2s, transform .2s;
+    }
+    .phil-card:hover { border-color: var(--purple); transform: translateY(-4px); }
+    .phil-icon { font-size: 2rem; margin-bottom: 16px; }
+    .phil-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
+    .phil-card p  { font-size: .93rem; color: var(--muted); }
+
+    /* ── Card Showcase ────────────────────────────────────────────── */
+    .card-showcase { perspective: 1200px; }
+    .card-row {
+      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .kcard {
+      width: 130px; flex-shrink: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .3s, box-shadow .3s;
+      position: relative;
+    }
+    .kcard:hover { transform: translateY(-10px) scale(1.06); }
+    .kcard-inner {
+      padding-bottom: 145%;
+      position: relative;
+    }
+    .kcard-face {
+      position: absolute; inset: 0;
+      border-radius: 12px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      padding: 12px 8px;
+    }
+    .kcard-name {
+      font-size: .7rem; font-weight: 700;
+      color: rgba(255,255,255,.9);
+      text-align: center;
+      text-shadow: 0 1px 6px rgba(0,0,0,.8);
+    }
+    .kcard-era { font-size: .6rem; color: rgba(255,255,255,.65); }
+    .kcard-rarity {
+      position: absolute; top: 8px; right: 8px;
+      font-size: .55rem; font-weight: 800;
+      padding: 2px 6px; border-radius: 4px;
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+    /* rarity colours */
+    .r-legendary { background: linear-gradient(135deg,#ffd700,#ff8c00); color:#1a0a00; }
+    .r-epic      { background: linear-gradient(135deg,#9b30ff,#6600cc); color:#fff; }
+    .r-rare      { background: linear-gradient(135deg,#00e5ff,#0077b6); color:#001a22; }
+    .r-uncommon  { background: linear-gradient(135deg,#3ddc84,#1a7a40); color:#001a0a; }
+    .r-common    { background: rgba(255,255,255,.15); color:rgba(255,255,255,.7); }
+
+    /* card bg gradients by rarity */
+    .bg-legendary { background: linear-gradient(160deg,#2a1a00,#6b4400,#ffd700 200%); box-shadow: 0 0 28px rgba(255,215,0,.35); }
+    .bg-epic      { background: linear-gradient(160deg,#1a0033,#4b1080,#9b30ff 200%); box-shadow: 0 0 28px rgba(155,48,255,.4); }
+    .bg-rare      { background: linear-gradient(160deg,#001a22,#004466,#00e5ff 200%); box-shadow: 0 0 28px rgba(0,229,255,.3); }
+    .bg-uncommon  { background: linear-gradient(160deg,#001a0e,#1a5c30,#3ddc84 200%); box-shadow: 0 0 20px rgba(61,220,132,.25); }
+    .bg-common    { background: linear-gradient(160deg,#141021,#2a2040,#6656a0 200%); }
+
+    .kcard-sparkle {
+      position: absolute; inset: 0; border-radius: 12px;
+      background: linear-gradient(135deg, rgba(255,255,255,.08) 0%, transparent 50%, rgba(255,255,255,.04) 100%);
+      pointer-events: none;
+    }
+
+    /* ── Battle section ───────────────────────────────────────────── */
+    .battle-board {
+      background: var(--dark3);
+      border: 1px solid rgba(0,229,255,.2);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: var(--glow-cyan);
+    }
+    .board-label {
+      text-align: center;
+      font-size: .8rem; font-weight: 700; letter-spacing: .12em;
+      color: var(--cyan); text-transform: uppercase; margin-bottom: 20px;
+    }
+    .board-cards {
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .board-card {
+      width: 72px; height: 100px; border-radius: 8px;
+      cursor: pointer; position: relative;
+      transition: transform .2s, box-shadow .2s;
+      border: 2px solid transparent;
+    }
+    .board-card:hover { transform: translateY(-6px); }
+    .board-card.playing {
+      border-color: var(--cyan);
+      box-shadow: 0 0 18px rgba(0,229,255,.6);
+      animation: card-pulse .6s ease-in-out infinite alternate;
+    }
+    .board-card.correct {
+      border-color: #3ddc84;
+      box-shadow: 0 0 20px rgba(61,220,132,.7);
+    }
+    .board-card.wrong {
+      border-color: var(--pink);
+      box-shadow: 0 0 20px rgba(255,45,120,.7);
+      animation: shake .3s ease-in-out;
+    }
+    @keyframes card-pulse { from { box-shadow: 0 0 12px rgba(0,229,255,.4); } to { box-shadow: 0 0 28px rgba(0,229,255,.8); } }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .board-card-label {
+      position: absolute; bottom: 4px; left: 0; right: 0;
+      text-align: center; font-size: .5rem; font-weight: 700;
+      color: rgba(255,255,255,.85);
+      text-shadow: 0 1px 4px rgba(0,0,0,.9);
+      padding: 0 2px;
+    }
+    .battle-ui {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; flex-wrap: wrap;
+    }
+    .player-score {
+      text-align: center; flex: 1; min-width: 120px;
+    }
+    .score-name { font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .1em; }
+    .score-num {
+      font-size: 3rem; font-weight: 900; line-height: 1;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .score-num.right {
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .battle-center { text-align: center; flex: 1; min-width: 120px; }
+    .vs-badge {
+      font-size: 1.4rem; font-weight: 900; color: #fff;
+      text-shadow: 0 0 20px var(--purple);
+    }
+    .clip-indicator {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,229,255,.1); border: 1px solid rgba(0,229,255,.3);
+      border-radius: 50px; padding: 6px 16px;
+      font-size: .8rem; font-weight: 700; color: var(--cyan);
+      margin-top: 8px;
+    }
+    .clip-wave {
+      display: flex; gap: 3px; align-items: center; height: 16px;
+    }
+    .wave-bar {
+      width: 3px; background: var(--cyan); border-radius: 2px;
+      animation: wave-anim .8s ease-in-out infinite;
+    }
+    .wave-bar:nth-child(1){ height: 6px;  animation-delay: 0s; }
+    .wave-bar:nth-child(2){ height: 14px; animation-delay: .1s; }
+    .wave-bar:nth-child(3){ height: 10px; animation-delay: .2s; }
+    .wave-bar:nth-child(4){ height: 16px; animation-delay: .15s; }
+    .wave-bar:nth-child(5){ height: 8px;  animation-delay: .05s; }
+    @keyframes wave-anim { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(.3)} }
+    .battle-hint {
+      text-align: center; margin-top: 16px;
+      font-size: .82rem; color: var(--muted); font-style: italic;
+    }
+    #battle-msg {
+      text-align: center; height: 28px; font-size: 1rem; font-weight: 700;
+      transition: opacity .2s;
+    }
+    .battle-demo-btn {
+      display: flex; justify-content: center; margin-top: 20px;
+    }
+
+    /* ── Steps ────────────────────────────────────────────────────── */
+    .steps { display: flex; flex-direction: column; gap: 28px; }
+    .step {
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 1rem; color: #fff;
+      box-shadow: var(--glow-pink);
+    }
+    .step-body h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; color: #fff; }
+    .step-body p  { font-size: .9rem; color: var(--muted); }
+
+    /* ── Abilities ────────────────────────────────────────────────── */
+    .ability-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .ability-card {
+      background: var(--dark3);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: transform .2s, border-color .2s;
+    }
+    .ability-card:hover { transform: translateY(-4px); }
+    .ability-icon { font-size: 1.8rem; margin-bottom: 12px; }
+    .ability-name {
+      font-size: .9rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .1em; margin-bottom: 8px;
+    }
+    .ability-desc { font-size: .85rem; color: var(--muted); }
+    .ab-anchor   .ability-name { color: #ffd700; }
+    .ab-boost    .ability-name { color: var(--pink); }
+    .ab-decoy    .ability-name { color: #a0e040; }
+    .ab-spotlight .ability-name { color: var(--cyan); }
+    .ab-encore   .ability-name { color: var(--purple); }
+    .ab-anchor   { border-color: rgba(255,215,0,.2); }
+    .ab-boost    { border-color: rgba(255,45,120,.2); }
+    .ab-decoy    { border-color: rgba(160,224,64,.2); }
+    .ab-spotlight { border-color: rgba(0,229,255,.2); }
+    .ab-encore   { border-color: rgba(155,48,255,.2); }
+
+    /* ── Ranks ────────────────────────────────────────────────────── */
+    .rank-row {
+      display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+    }
+    .rank-badge {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px; padding: 20px 24px;
+      background: var(--dark3);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.08);
+      min-width: 100px;
+      transition: transform .2s;
+    }
+    .rank-badge:hover { transform: translateY(-4px); }
+    .rank-icon { font-size: 2rem; }
+    .rank-name { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+    .rank-rookie   .rank-name { color: #9b93c8; }
+    .rank-trainee  .rank-name { color: #3ddc84; }
+    .rank-idol     .rank-name { color: var(--cyan); }
+    .rank-allstar  .rank-name { color: var(--pink); }
+    .rank-legend   .rank-name { color: var(--gold); }
+
+    /* ── Economy ──────────────────────────────────────────────────── */
+    .econ-card {
+      background: var(--dark3);
+      border: 1px solid rgba(155,48,255,.2);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: transform .2s;
+    }
+    .econ-card:hover { transform: translateY(-4px); }
+    .econ-icon { font-size: 2rem; margin-bottom: 14px; }
+    .econ-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #fff; }
+    .econ-card p  { font-size: .88rem; color: var(--muted); }
+
+    /* ── Roadmap ──────────────────────────────────────────────────── */
+    .roadmap {
+      position: relative;
+      padding-left: 40px;
+    }
+    .roadmap::before {
+      content: '';
+      position: absolute; left: 12px; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--purple), var(--pink), var(--cyan));
+    }
+    .roadmap-item {
+      position: relative; margin-bottom: 40px;
+    }
+    .roadmap-dot {
+      position: absolute; left: -34px; top: 4px;
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid var(--purple);
+      background: var(--dark);
+      box-shadow: 0 0 10px var(--purple);
+    }
+    .roadmap-item.active .roadmap-dot {
+      background: var(--purple);
+      box-shadow: 0 0 16px var(--purple);
+    }
+    .roadmap-phase {
+      font-size: .72rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--purple); margin-bottom: 4px;
+    }
+    .roadmap-item.active .roadmap-phase { color: var(--pink); }
+    .roadmap-item h4 { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .roadmap-item p  { font-size: .88rem; color: var(--muted); }
+    .roadmap-tag {
+      display: inline-block; margin-top: 8px;
+      background: rgba(155,48,255,.15); border: 1px solid rgba(155,48,255,.3);
+      border-radius: 50px; padding: 3px 12px;
+      font-size: .7rem; font-weight: 700; color: var(--purple);
+    }
+    .roadmap-item.active .roadmap-tag {
+      background: rgba(255,45,120,.15); border-color: rgba(255,45,120,.3);
+      color: var(--pink);
+    }
+
+    /* ── Social / Fandom ──────────────────────────────────────────── */
+    .fandom-card {
+      background: var(--dark3);
+      border: 1px solid rgba(255,45,120,.15);
+      border-radius: var(--radius);
+      padding: 28px; text-align: center;
+      transition: transform .2s, border-color .2s;
+    }
+    .fandom-card:hover { transform: translateY(-4px); border-color: var(--pink); }
+    .fandom-icon { font-size: 2.4rem; margin-bottom: 14px; }
+    .fandom-card h3 { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .fandom-card p  { font-size: .87rem; color: var(--muted); }
+
+    /* ── CTA Banner ───────────────────────────────────────────────── */
+    #cta {
+      padding: 96px 24px;
+      background:
+        radial-gradient(ellipse 70% 80% at 50% 50%, rgba(155,48,255,.18) 0%, transparent 70%),
+        var(--dark2);
+      text-align: center;
+    }
+    .cta-glow {
+      font-size: clamp(2rem,5vw,3.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .cta-sub { color: var(--muted); max-width: 500px; margin: 0 auto 36px; }
+    .email-form {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+      max-width: 460px; margin: 0 auto;
+    }
+    .email-form input {
+      flex: 1; min-width: 220px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(155,48,255,.3);
+      border-radius: 50px;
+      padding: 14px 22px;
+      color: #fff; font-size: .95rem;
+      outline: none; transition: border-color .2s;
+    }
+    .email-form input::placeholder { color: var(--muted); }
+    .email-form input:focus { border-color: var(--purple); }
+    #signup-msg { margin-top: 14px; font-size: .88rem; color: var(--cyan); height: 20px; }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+    footer {
+      background: var(--dark);
+      border-top: 1px solid rgba(155,48,255,.15);
+      padding: 48px 0 28px;
+    }
+    .footer-inner {
+      max-width: 1140px; margin: 0 auto; padding: 0 24px;
+    }
+    .footer-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 32px; flex-wrap: wrap; margin-bottom: 40px;
+    }
+    .footer-brand { max-width: 280px; }
+    .footer-logo {
+      font-size: 1.8rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--pink), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 12px;
+    }
+    .footer-brand p { font-size: .87rem; color: var(--muted); }
+    .footer-links h5 { font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #fff; margin-bottom: 14px; }
+    .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links li a { font-size: .87rem; color: var(--muted); transition: color .15s; }
+    .footer-links li a:hover { color: #fff; }
+    .footer-bottom {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding-top: 24px;
+    }
+    .footer-copy { font-size: .8rem; color: var(--muted); }
+    .footer-socials { display: flex; gap: 16px; }
+    .social-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .social-btn:hover { background: rgba(155,48,255,.2); border-color: var(--purple); }
+
+    /* ── Pack open animation ──────────────────────────────────────── */
+    .pack-demo {
+      display: flex; flex-direction: column; align-items: center; gap: 20px;
+    }
+    .pack-box {
+      width: 120px; height: 170px; border-radius: 14px;
+      background: linear-gradient(160deg, #1a003a, #4b1080, #9b30ff);
+      border: 2px solid rgba(155,48,255,.6);
+      box-shadow: 0 0 40px rgba(155,48,255,.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      position: relative; overflow: hidden;
+    }
+    .pack-box::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .pack-box:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(155,48,255,.7); }
+    .pack-box:active { transform: scale(.97); }
+    .pack-reveal {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+      min-height: 120px;
+    }
+    .pack-hint { font-size: .85rem; color: var(--muted); font-style: italic; }
+    .pack-card-out {
+      animation: pop-in .4s cubic-bezier(.175,.885,.32,1.275) forwards;
+      opacity: 0;
+    }
+    @keyframes pop-in {
+      from { opacity:0; transform:scale(.4) rotate(-8deg); }
+      to   { opacity:1; transform:scale(1) rotate(0deg); }
+    }
+
+    /* ── Scroll reveal ────────────────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Wager chip ───────────────────────────────────────────────── */
+    .wager-box {
+      background: linear-gradient(135deg, rgba(255,215,0,.08), rgba(255,215,0,.02));
+      border: 1px solid rgba(255,215,0,.25);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 0 24px rgba(255,215,0,.1);
+    }
+    .wager-box h3 { color: var(--gold); font-size: 1.1rem; font-weight: 800; margin-bottom: 10px; }
+    .wager-box p  { color: var(--muted); font-size: .9rem; }
+  </style>
+</head>
+<body>
+
+<!-- Particle background -->
+<canvas id="particles"></canvas>
+
+<!-- ── Nav ─────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">카차 KACHA</div>
+    <div class="nav-links">
+      <a href="#how-it-works">How It Works</a>
+      <a href="#cards">Cards</a>
+      <a href="#battle">Battle</a>
+      <a href="#progression">Progression</a>
+      <a href="#roadmap">Roadmap</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#cta" class="btn btn-primary" style="padding:10px 22px;font-size:.88rem;">Join Waitlist</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="float-cards">
+    <div class="float-card fc1"></div>
+    <div class="float-card fc2"></div>
+    <div class="float-card fc3"></div>
+    <div class="float-card fc4"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span>Now in Development</div>
+    <h1>Your Fandom.<br><span class="gradient-text">Your Advantage.</span></h1>
+    <p class="hero-sub">Kacha is the K-pop gacha game where knowledge beats money. Collect your biases, build your lineup, and out-hear every opponent in live audio duels.</p>
+    <div class="hero-btns">
+      <a href="#cta" class="btn btn-primary">Join the Waitlist</a>
+      <a href="#how-it-works" class="btn btn-outline">See How It Works</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">5v5</div><div class="stat-label">Audio Duels</div></div>
+      <div class="stat"><div class="stat-num">2–3s</div><div class="stat-label">Clip Length</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">Abilities</div></div>
+      <div class="stat"><div class="stat-num">0</div><div class="stat-label">Pay-to-Win</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Marquee ──────────────────────────────────────────────────── -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>Collect</span><span>Battle</span><span>Trade</span><span>Earn</span>
+    <span>Bias Boost</span><span>Setlist Clash</span><span>Encore</span><span>Wager Mode</span>
+    <span>Anchor</span><span>Decoy</span><span>Spotlight</span><span>Tour Mode</span>
+    <span>Collect</span><span>Battle</span><span>Trade</span><span>Earn</span>
+    <span>Bias Boost</span><span>Setlist Clash</span><span>Encore</span><span>Wager Mode</span>
+    <span>Anchor</span><span>Decoy</span><span>Spotlight</span><span>Tour Mode</span>
+  </div>
+</div>
+
+<!-- ── Philosophy ──────────────────────────────────────────────── -->
+<section class="section" id="philosophy">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px;" class="reveal">
+      <div class="label">Design Philosophy</div>
+      <h2>Cards give you options.<br><span class="gradient-text">Knowledge scores the point.</span></h2>
+      <p class="subtext" style="margin:0 auto;">Most gacha games are won by whoever spends the most. Kacha breaks that link — a whale who owns everything but knows nothing still loses to a genuine superfan.</p>
+    </div>
+    <div class="grid-3">
+      <div class="phil-card reveal">
+        <div class="phil-icon">💸</div>
+        <h3>Skill Over Wallet</h3>
+        <p>Spending accelerates collection and unlocks strategic options. It never buys a faster correct answer. The song either sounds familiar — or it doesn't.</p>
+      </div>
+      <div class="phil-card reveal" style="transition-delay:.1s">
+        <div class="phil-icon">🎵</div>
+        <h3>Collection is Study</h3>
+        <p>Every card lets you hear its era's clips. Building your deck is also learning the catalog — new fans grow their knowledge and their collection together.</p>
+      </div>
+      <div class="phil-card reveal" style="transition-delay:.2s">
+        <div class="phil-icon">⚖️</div>
+        <h3>Fairness is Structural</h3>
+        <p>The battle format itself prevents cheating, answer disputes, and newbie walls. No text box means no Shazam, no title-spelling arguments, no ambiguity.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How It Works ─────────────────────────────────────────────── -->
+<section class="section section--alt" id="how-it-works">
+  <div class="container">
+    <div class="grid-2">
+      <div class="reveal">
+        <div class="label">Setlist Clash</div>
+        <h2>A music duel built to be <span class="gradient-text">impossible to cheat.</span></h2>
+        <p class="subtext" style="margin-bottom:36px;">Instead of typing a song title, you tap the card you think the clip belongs to. The board is your answer space — there's nothing to identify that isn't already in front of you.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h4>Build Your Lineup</h4>
+              <p>Pick 5 cards from your collection. Each card brings its era's audio pool into the match, steering clips toward groups you know cold.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h4>A 2–3 Second Clip Plays</h4>
+              <p>The server picks a card from the shared 10-card board and fires a short clip. Both players hear it simultaneously, with server-authoritative timing.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h4>Tap the Right Card</h4>
+              <p>Race to tap the matching card. First correct tap scores. A wrong tap locks you out for the round — mashing gets punished, knowledge gets rewarded.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h4>First to 5 Wins</h4>
+              <p>Quick, high-energy sessions. The trailing player's ability resources charge faster, keeping every match tense until the final round.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="transition-delay:.15s">
+        <!-- Interactive battle demo -->
+        <div class="battle-board">
+          <div class="board-label">⚔️ Live Battle Demo — Tap the matching card!</div>
+          <div class="board-cards" id="board-cards"></div>
+          <div id="battle-msg"></div>
+          <div class="battle-ui">
+            <div class="player-score">
+              <div class="score-name">You</div>
+              <div class="score-num" id="p1-score">0</div>
+            </div>
+            <div class="battle-center">
+              <div class="vs-badge">VS</div>
+              <div class="clip-indicator" id="clip-indicator">
+                <div class="clip-wave">
+                  <div class="wave-bar"></div>
+                  <div class="wave-bar"></div>
+                  <div class="wave-bar"></div>
+                  <div class="wave-bar"></div>
+                  <div class="wave-bar"></div>
+                </div>
+                <span id="clip-text">Press Start</span>
+              </div>
+            </div>
+            <div class="player-score">
+              <div class="score-name">Opponent</div>
+              <div class="score-num right" id="p2-score">0</div>
+            </div>
+          </div>
+          <div class="battle-demo-btn">
+            <button class="btn btn-primary" id="start-battle" onclick="startBattle()">▶ Start Round</button>
+          </div>
+          <div class="battle-hint">Demo uses placeholder clip names. Real game uses licensed K-pop audio.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Cards ────────────────────────────────────────────────────── -->
+<section class="section" id="cards">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px;" class="reveal">
+      <div class="label">Card Collection</div>
+      <h2>Every card is an era.<br><span class="gradient-text">Every pull sharpens your edge.</span></h2>
+      <p class="subtext" style="margin:0 auto;">Cards are locked to specific comeback eras and carry an audio pool, a battle ability, and a rarity tier. Rarity buys steering — not victories.</p>
+    </div>
+    <div class="card-showcase reveal">
+      <!-- Row 1 -->
+      <div class="card-row" id="card-row-1"></div>
+      <!-- Row 2 -->
+      <div class="card-row" id="card-row-2"></div>
+    </div>
+
+    <div style="margin-top:56px;" class="grid-2">
+      <div class="reveal">
+        <div class="label">Pack Opening</div>
+        <h2>Open a pack.<br><span class="gradient-text">Hear your pull.</span></h2>
+        <p class="subtext">Limited-time comeback banners drop the week a real group releases. Every pack you open is also a study session — hear the clips, know the era.</p>
+        <ul style="margin-top:24px;list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li style="display:flex;gap:12px;align-items:flex-start;font-size:.92rem;color:var(--muted)"><span style="color:var(--purple);font-weight:700;">✦</span>Weighted rarity pulls with displayed rates</li>
+          <li style="display:flex;gap:12px;align-items:flex-start;font-size:.92rem;color:var(--muted)"><span style="color:var(--purple);font-weight:700;">✦</span>Duplicates level up ability + durability</li>
+          <li style="display:flex;gap:12px;align-items:flex-start;font-size:.92rem;color:var(--muted)"><span style="color:var(--purple);font-weight:700;">✦</span>Limited comeback banners tied to real release dates</li>
+          <li style="display:flex;gap:12px;align-items:flex-start;font-size:.92rem;color:var(--muted)"><span style="color:var(--purple);font-weight:700;">✦</span>Earn coins through battles, quests, and daily login</li>
+        </ul>
+      </div>
+      <div class="reveal pack-demo" style="transition-delay:.15s">
+        <div class="pack-box" id="pack-box" onclick="openPack()">🃏</div>
+        <p class="pack-hint" id="pack-hint">Tap the pack to open it!</p>
+        <div class="pack-reveal" id="pack-reveal"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Abilities ────────────────────────────────────────────────── -->
+<section class="section section--alt" id="abilities">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:48px;" class="reveal">
+      <div class="label">Card Abilities</div>
+      <h2>5 abilities. <span class="gradient-text">Infinite strategy.</span></h2>
+      <p class="subtext" style="margin:0 auto;">Rarity grants access to stronger ability options — not faster correct answers. Deck-building is about knowing which abilities complement what you know.</p>
+    </div>
+    <div class="ability-grid reveal">
+      <div class="ability-card ab-anchor">
+        <div class="ability-icon">⚓</div>
+        <div class="ability-name">Anchor</div>
+        <div class="ability-desc">Takes two correct IDs to knock out. Tank card for a group you know cold — your opponent needs two right answers to clear it.</div>
+      </div>
+      <div class="ability-card ab-boost">
+        <div class="ability-icon">⚡</div>
+        <div class="ability-name">Bias Boost</div>
+        <div class="ability-desc">Gives you a head start when this card's clip plays. Rewards fielding groups you genuinely know best — stack it with your main bias.</div>
+      </div>
+      <div class="ability-card ab-decoy">
+        <div class="ability-icon">🎭</div>
+        <div class="ability-name">Decoy</div>
+        <div class="ability-desc">Seeds a sound-alike clip to bait wrong taps from your opponent. High-risk, high-reward — a baited lockout is a free point.</div>
+      </div>
+      <div class="ability-card ab-spotlight">
+        <div class="ability-icon">🔦</div>
+        <div class="ability-name">Spotlight</div>
+        <div class="ability-desc">Clips play longer — easier for both players — but score double if you claim them. A calculated gamble: easier to hear, bigger payoff.</div>
+      </div>
+      <div class="ability-card ab-encore">
+        <div class="ability-icon">🎤</div>
+        <div class="ability-name">Encore</div>
+        <div class="ability-desc">Charges faster when you're behind. The comeback lever that keeps a 0–4 deficit tense without rewarding losing outright.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Progression / Ranks ──────────────────────────────────────── -->
+<section class="section" id="progression">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:48px;" class="reveal">
+      <div class="label">Progression & Competition</div>
+      <h2>Climb the ranks.<br><span class="gradient-text">Prove your knowledge.</span></h2>
+      <p class="subtext" style="margin:0 auto;">Hidden MMR powers fair matchmaking. Cosmetic divisions surface your rank for status and reset each season with fresh rewards.</p>
+    </div>
+    <div class="rank-row reveal" style="margin-bottom:56px;">
+      <div class="rank-badge rank-rookie">
+        <div class="rank-icon">🌱</div>
+        <div class="rank-name">Rookie</div>
+      </div>
+      <div class="rank-badge rank-trainee">
+        <div class="rank-icon">🎧</div>
+        <div class="rank-name">Trainee</div>
+      </div>
+      <div class="rank-badge rank-idol">
+        <div class="rank-icon">🌟</div>
+        <div class="rank-name">Idol</div>
+      </div>
+      <div class="rank-badge rank-allstar">
+        <div class="rank-icon">💗</div>
+        <div class="rank-name">All-Star</div>
+      </div>
+      <div class="rank-badge rank-legend">
+        <div class="rank-icon">👑</div>
+        <div class="rank-name">Legend</div>
+      </div>
+    </div>
+
+    <div class="grid-3 reveal">
+      <div class="econ-card">
+        <div class="econ-icon">📋</div>
+        <h3>Daily Quests</h3>
+        <p>Steady coin faucet through daily challenges, collection milestones, and in-match feats. Something to do every session, even without PvP matches.</p>
+      </div>
+      <div class="econ-card">
+        <div class="econ-icon">🤖</div>
+        <h3>Tour Mode (PvE)</h3>
+        <p>Solo stages against AI with difficulty that ramps one axis at a time — shorter clips, then B-sides, then audio manipulation. Safe onboarding that never stomps newcomers.</p>
+      </div>
+      <div class="econ-card">
+        <div class="econ-icon">🏆</div>
+        <h3>Seasonal Resets</h3>
+        <p>Seasons reset rank with exclusive rewards for your peak tier. Fresh start for everyone, but your collection and knowledge carry over permanently.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:40px;" class="reveal">
+      <div class="wager-box">
+        <h3>⚡ Wager Mode</h3>
+        <p>Optional high-stakes matches where players ante coins or shards. The loser forfeits the pot. Genuine stakes without ever putting your cards at risk — no whale-stomping, no real-money vector. Cards are never on the line; only the pot is.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Social / Fandom ──────────────────────────────────────────── -->
+<section class="section section--alt" id="fandom">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:48px;" class="reveal">
+      <div class="label">Fandom at the Center</div>
+      <h2>Guilds <em>are</em> fandoms.<br><span class="gradient-text">Rivalry is the point.</span></h2>
+      <p class="subtext" style="margin:0 auto;">Bias declaration, fandom clubs, and group-versus-group events make Setlist Clash native fandom competition — not a generic card game clan system.</p>
+    </div>
+    <div class="grid-4 reveal">
+      <div class="fandom-card">
+        <div class="fandom-icon">💜</div>
+        <h3>Declare Your Bias</h3>
+        <p>Pick a primary group and represent them every match. Your bias card gets visual flair in your profile and lineup.</p>
+      </div>
+      <div class="fandom-card">
+        <div class="fandom-icon">🏟️</div>
+        <h3>Fandom Guilds</h3>
+        <p>Join a fan club, recruit members, and compete as a unit. Guilds are organized by group allegiance, not just rank brackets.</p>
+      </div>
+      <div class="fandom-card">
+        <div class="fandom-icon">⚔️</div>
+        <h3>Group vs. Group Events</h3>
+        <p>Weekly leaderboard wars between rival fandoms. Every match your guild wins contributes to the group score — fandom pride on the line.</p>
+      </div>
+      <div class="fandom-card">
+        <div class="fandom-icon">👤</div>
+        <h3>Fandom Profile</h3>
+        <p>Showcase your bias, rank, collection highlights, and win rate. A public card that broadcasts your fandom identity.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Roadmap ──────────────────────────────────────────────────── -->
+<section class="section" id="roadmap">
+  <div class="container">
+    <div class="grid-2">
+      <div class="reveal">
+        <div class="label">Development Roadmap</div>
+        <h2>Building in phases.<br><span class="gradient-text">Battle first.</span></h2>
+        <p class="subtext">The battle format is the core differentiator. Everything else — economy, social, PvE — exists to feed players into it and keep them there.</p>
+        <div style="margin-top:32px;">
+          <p style="font-size:.88rem;color:var(--muted);margin-bottom:20px;">Tech stack: Flutter (iOS/Android) · Node.js + WebSockets · PostgreSQL · Redis · S3 + CloudFront CDN</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <span style="background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);border-radius:50px;padding:4px 14px;font-size:.75rem;color:var(--cyan)">Flutter</span>
+            <span style="background:rgba(155,48,255,.1);border:1px solid rgba(155,48,255,.3);border-radius:50px;padding:4px 14px;font-size:.75rem;color:var(--purple)">Node.js</span>
+            <span style="background:rgba(255,45,120,.1);border:1px solid rgba(255,45,120,.3);border-radius:50px;padding:4px 14px;font-size:.75rem;color:var(--pink)">PostgreSQL</span>
+            <span style="background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:50px;padding:4px 14px;font-size:.75rem;color:var(--gold)">Redis</span>
+            <span style="background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.3);border-radius:50px;padding:4px 14px;font-size:.75rem;color:#3ddc84">CloudFront</span>
+          </div>
+        </div>
+      </div>
+      <div class="reveal roadmap" style="transition-delay:.15s">
+        <div class="roadmap-item active">
+          <div class="roadmap-dot"></div>
+          <div class="roadmap-phase">Phase 1 · Weeks 1–6</div>
+          <h4>Foundation</h4>
+          <p>Auth, card schema, audio pipeline, pack opening, collection viewer, coin economy.</p>
+          <span class="roadmap-tag">Cards exist. Packs open. Audio plays.</span>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot"></div>
+          <div class="roadmap-phase">Phase 2 · Weeks 7–14</div>
+          <h4>Setlist Clash Core</h4>
+          <p>Matchmaking, lineup selection, real-time battle room, all 5 card abilities, post-match summary.</p>
+          <span class="roadmap-tag">1v1 battles work end-to-end.</span>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot"></div>
+          <div class="roadmap-phase">Phase 3 · Weeks 12–18</div>
+          <h4>Economy & Trading</h4>
+          <p>Shop, battle pass, comeback banners, duplicate system, scam-resistant trade flow.</p>
+          <span class="roadmap-tag">Economy is self-sustaining.</span>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot"></div>
+          <div class="roadmap-phase">Phase 4 · Weeks 17–22</div>
+          <h4>Matchmaking & Progression</h4>
+          <p>Hidden MMR, tier divisions, seasonal resets, quest system, wager mode.</p>
+          <span class="roadmap-tag">Rank means something.</span>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot"></div>
+          <div class="roadmap-phase">Phase 5 · Weeks 21–26</div>
+          <h4>Fandom & Social</h4>
+          <p>Bias declaration, guilds, group leaderboard events, profiles, friend challenges.</p>
+          <span class="roadmap-tag">Feels like a fandom space.</span>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot"></div>
+          <div class="roadmap-phase">Phase 6 · Weeks 24–30</div>
+          <h4>PvE, Onboarding & Polish</h4>
+          <p>Tutorial, difficulty band lock, Tour mode, boss challenges, accessibility pass.</p>
+          <span class="roadmap-tag">New players don't bounce.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ──────────────────────────────────────────────────────── -->
+<section id="cta">
+  <div class="container">
+    <div class="reveal">
+      <div class="cta-glow">Be the first to <span class="gradient-text">prove your fandom.</span></div>
+      <p class="cta-sub">Join the waitlist for early access, closed beta invites, and updates on the launch lineup.</p>
+      <form class="email-form" onsubmit="handleSignup(event)">
+        <input type="email" id="email-input" placeholder="your@email.com" required />
+        <button type="submit" class="btn btn-primary">Notify Me</button>
+      </form>
+      <div id="signup-msg"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ───────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">카차 KACHA</div>
+        <p>The K-pop gacha game where knowledge beats money. Your collection is an expression of your fandom — and the deeper you know the music, the better you compete.</p>
+      </div>
+      <div class="footer-links">
+        <h5>Game</h5>
+        <ul>
+          <li><a href="#how-it-works">Setlist Clash</a></li>
+          <li><a href="#cards">Cards & Packs</a></li>
+          <li><a href="#abilities">Abilities</a></li>
+          <li><a href="#progression">Progression</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Community</h5>
+        <ul>
+          <li><a href="#fandom">Guilds</a></li>
+          <li><a href="#fandom">Group Events</a></li>
+          <li><a href="#cta">Beta Waitlist</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#roadmap">Roadmap</a></li>
+          <li><a href="#philosophy">Design Philosophy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 Kacha. All rights reserved. K-pop audio used under license.</div>
+      <div class="footer-socials">
+        <div class="social-btn">𝕏</div>
+        <div class="social-btn">📸</div>
+        <div class="social-btn">💬</div>
+        <div class="social-btn">▶</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Scripts ──────────────────────────────────────────────────── -->
+<script>
+/* ── Particles ──────────────────────────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let W, H, pts = [];
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  function randomPt() {
+    return {
+      x: Math.random() * W, y: Math.random() * H,
+      vx: (Math.random() - .5) * .4, vy: (Math.random() - .5) * .4,
+      r: Math.random() * 1.8 + .4,
+      c: Math.random() < .5 ? '155,48,255' : Math.random() < .5 ? '255,45,120' : '0,229,255'
+    };
+  }
+  resize();
+  for (let i = 0; i < 120; i++) pts.push(randomPt());
+  window.addEventListener('resize', resize);
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.c},0.7)`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── Scroll reveal ──────────────────────────────────────────────── */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: .12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ── Card data ──────────────────────────────────────────────────── */
+const CARDS = [
+  { name: 'IRENE',   era: 'Queendom',    rarity: 'legendary', bg: 'bg-legendary' },
+  { name: 'JENNIE',  era: 'SOLO',        rarity: 'epic',      bg: 'bg-epic'      },
+  { name: 'TAEHYUNG',era: 'Map of Soul', rarity: 'epic',      bg: 'bg-epic'      },
+  { name: 'TZUYU',   era: 'FEEL SPECIAL',rarity: 'rare',      bg: 'bg-rare'      },
+  { name: 'SANA',    era: 'MORE & MORE', rarity: 'rare',      bg: 'bg-rare'      },
+  { name: 'IVE (Group)', era: 'AFTER LIKE', rarity: 'uncommon', bg: 'bg-uncommon' },
+  { name: 'aespa',   era: 'Black Mamba', rarity: 'uncommon',  bg: 'bg-uncommon'  },
+  { name: 'NCT 127', era: 'Kick It',     rarity: 'common',    bg: 'bg-common'    },
+  { name: 'STRAY KIDS', era: 'MIROH',   rarity: 'common',    bg: 'bg-common'    },
+  { name: 'JISOO',   era: 'FLOWER',      rarity: 'legendary', bg: 'bg-legendary' },
+];
+
+function renderCard(card, size) {
+  const sz = size || 130;
+  return `
+    <div class="kcard" style="width:${sz}px;">
+      <div class="kcard-inner">
+        <div class="kcard-face ${card.bg}">
+          <div class="kcard-sparkle"></div>
+          <span class="kcard-rarity r-${card.rarity}">${card.rarity}</span>
+          <div>
+            <div class="kcard-name">${card.name}</div>
+            <div class="kcard-era">${card.era}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── Showcase rows ──────────────────────────────────────────────── */
+const r1 = document.getElementById('card-row-1');
+const r2 = document.getElementById('card-row-2');
+CARDS.slice(0, 5).forEach(c => r1.innerHTML += renderCard(c));
+CARDS.slice(5).forEach(c  => r2.innerHTML += renderCard(c));
+
+/* ── Battle demo ─────────────────────────────────────────────────── */
+const BATTLE_CARDS = [
+  { name: 'IRENE',    era: 'Queendom',     bg: 'bg-legendary' },
+  { name: 'JENNIE',   era: 'SOLO',         bg: 'bg-epic'      },
+  { name: 'TAEHYUNG', era: 'Map of Soul',  bg: 'bg-epic'      },
+  { name: 'TZUYU',    era: 'FEEL SPECIAL', bg: 'bg-rare'      },
+  { name: 'SANA',     era: 'MORE & MORE',  bg: 'bg-rare'      },
+  { name: 'aespa',    era: 'Black Mamba',  bg: 'bg-uncommon'  },
+  { name: 'Stray Kids', era: 'MIROH',      bg: 'bg-uncommon'  },
+  { name: 'NCT 127',  era: 'Kick It',      bg: 'bg-common'    },
+  { name: 'IVE',      era: 'AFTER LIKE',   bg: 'bg-uncommon'  },
+  { name: 'JISOO',    era: 'FLOWER',       bg: 'bg-legendary' },
+];
+
+let battleState = {
+  p1: 0, p2: 0,
+  active: false,
+  correctIdx: -1,
+  locked: false,
+};
+
+function buildBoard() {
+  const container = document.getElementById('board-cards');
+  container.innerHTML = '';
+  BATTLE_CARDS.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = `board-card ${c.bg}`;
+    div.innerHTML = `<div class="board-card-label">${c.name}<br><span style="font-size:.45rem;opacity:.7">${c.era}</span></div>`;
+    div.dataset.idx = i;
+    div.onclick = () => handleTap(i);
+    container.appendChild(div);
+  });
+}
+
+function getCards() { return document.querySelectorAll('.board-card'); }
+
+function setMsg(txt, color) {
+  const el = document.getElementById('battle-msg');
+  el.textContent = txt;
+  el.style.color = color || '#fff';
+}
+
+function startBattle() {
+  if (battleState.active) return;
+  battleState.active = true;
+  battleState.locked = false;
+  battleState.correctIdx = Math.floor(Math.random() * BATTLE_CARDS.length);
+  const cards = getCards();
+  cards.forEach(c => { c.classList.remove('playing','correct','wrong'); });
+  cards[battleState.correctIdx].classList.add('playing');
+  const clipText = document.getElementById('clip-text');
+  clipText.textContent = '🎵 Clip playing…';
+  setMsg('');
+  document.getElementById('start-battle').disabled = true;
+  // Opponent answers after random delay (1.2–3s)
+  const opDelay = 1200 + Math.random() * 1800;
+  setTimeout(() => {
+    if (battleState.active && !battleState.locked) opponentAnswer();
+  }, opDelay);
+}
+
+function handleTap(idx) {
+  if (!battleState.active || battleState.locked) return;
+  battleState.locked = true;
+  const cards = getCards();
+  if (idx === battleState.correctIdx) {
+    cards[idx].classList.remove('playing');
+    cards[idx].classList.add('correct');
+    battleState.p1++;
+    document.getElementById('p1-score').textContent = battleState.p1;
+    setMsg('✓ Correct! You scored!', '#3ddc84');
+  } else {
+    cards[idx].classList.add('wrong');
+    cards[battleState.correctIdx].classList.remove('playing');
+    cards[battleState.correctIdx].classList.add('correct');
+    setMsg('✗ Wrong tap — locked out this round.', '#ff2d78');
+  }
+  endRound();
+}
+
+function opponentAnswer() {
+  if (!battleState.active || battleState.locked) return;
+  battleState.locked = true;
+  const cards = getCards();
+  cards[battleState.correctIdx].classList.remove('playing');
+  cards[battleState.correctIdx].classList.add('correct');
+  battleState.p2++;
+  document.getElementById('p2-score').textContent = battleState.p2;
+  setMsg('Opponent was faster this round!', '#00e5ff');
+  endRound();
+}
+
+function endRound() {
+  battleState.active = false;
+  document.getElementById('clip-text').textContent = 'Round over';
+  setTimeout(() => {
+    const cards = getCards();
+    cards.forEach(c => c.classList.remove('playing','correct','wrong'));
+    document.getElementById('clip-text').textContent = 'Press Start';
+    setMsg('');
+    const btn = document.getElementById('start-battle');
+    if (battleState.p1 >= 5 || battleState.p2 >= 5) {
+      const won = battleState.p1 >= 5;
+      btn.textContent = won ? '🏆 You Win! Play Again' : '💔 You Lost! Try Again';
+      btn.disabled = false;
+      setMsg(won ? '🏆 First to 5! You win this match!' : '😭 Opponent reached 5 first. Try again!', won ? '#ffd700' : '#ff2d78');
+      if (won || !won) {
+        btn.onclick = () => { battleState.p1=0; battleState.p2=0; document.getElementById('p1-score').textContent='0'; document.getElementById('p2-score').textContent='0'; btn.textContent='▶ Start Round'; btn.onclick=startBattle; btn.disabled=false; setMsg(''); };
+      }
+    } else {
+      btn.textContent = '▶ Start Round';
+      btn.disabled = false;
+      btn.onclick = startBattle;
+    }
+  }, 1800);
+}
+
+buildBoard();
+
+/* ── Pack opening ───────────────────────────────────────────────── */
+const RARITIES = ['legendary','epic','epic','rare','rare','rare','uncommon','uncommon','common','common'];
+const PACK_POOL = [
+  { name:'SEULGI', era:'28 Reasons', rarity:'legendary', bg:'bg-legendary' },
+  { name:'LISA',   era:'LALISA',     rarity:'epic',      bg:'bg-epic'      },
+  { name:'RM',     era:'Indigo',     rarity:'epic',      bg:'bg-epic'      },
+  { name:'MOMO',   era:'Talk that Talk',rarity:'rare',   bg:'bg-rare'      },
+  { name:'MINA',   era:'The Feels',  rarity:'rare',      bg:'bg-rare'      },
+  { name:'NewJeans', era:'Hype Boy', rarity:'uncommon',  bg:'bg-uncommon'  },
+  { name:'ITZY',   era:'LOCO',       rarity:'uncommon',  bg:'bg-uncommon'  },
+  { name:'EXO',    era:'Monster',    rarity:'common',    bg:'bg-common'    },
+  { name:'Monsta X', era:'Follow',   rarity:'common',    bg:'bg-common'    },
+  { name:'NMIXX',  era:'O.O',        rarity:'uncommon',  bg:'bg-uncommon'  },
+];
+let packOpened = false;
+function openPack() {
+  const reveal = document.getElementById('pack-reveal');
+  const hint   = document.getElementById('pack-hint');
+  const box    = document.getElementById('pack-box');
+  reveal.innerHTML = '';
+  box.style.opacity = '.4';
+  box.style.transform = 'scale(.9)';
+  hint.textContent = 'Revealing...';
+  const shuffled = [...PACK_POOL].sort(() => Math.random() - .5).slice(0, 5);
+  shuffled.forEach((c, i) => {
+    setTimeout(() => {
+      const wrap = document.createElement('div');
+      wrap.className = 'pack-card-out';
+      wrap.style.animationDelay = `0s`;
+      wrap.innerHTML = renderCard(c, 90);
+      reveal.appendChild(wrap);
+      if (i === 4) {
+        hint.textContent = 'Tap again for another pull!';
+        box.style.opacity = '1';
+        box.style.transform = 'scale(1)';
+      }
+    }, i * 280);
+  });
+}
+
+/* ── Email signup ───────────────────────────────────────────────── */
+function handleSignup(e) {
+  e.preventDefault();
+  const val = document.getElementById('email-input').value;
+  const msg = document.getElementById('signup-msg');
+  msg.textContent = `✓ You're on the list! We'll notify ${val} when closed beta opens.`;
+  document.getElementById('email-input').value = '';
+}
+</script>
+</body>
+</html>
